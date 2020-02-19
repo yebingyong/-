@@ -1,0 +1,8 @@
+1、when 代表服务器端的判断条件，生效条件。
+whenclient 代表是客户端的判断条件，js生效条件。  
+['vin', 'required', 'when' => function ($model) {
+                return $model->hasStoreArchives == 1;}, 'whenClient' => "function (attribute, value) {
+                    return $('#vehicleaddform-hasstorearchives').val() == '1';
+            }"],
+2、自定义方法时，为空时照样认证
+ [['sale'], 'validateSale','skipOnEmpty' => false],

@@ -1,0 +1,1 @@
+1、garage_dev.store的customer_id 是mancando_dev的garage的id；

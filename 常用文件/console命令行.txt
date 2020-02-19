@@ -1,0 +1,21 @@
+本地脚本测试
+1、docker ps 查看容器
+2、docker exec -it f8a29db8d5ed /bin/bash 进入容器
+3、cd 到console位置
+4、php index.php wechat/vehicle/maintain-notify/check-maintain-date 运行相应方法
+
+
+
+2/本地脚本执行
+
+cd /home/dev/devops/lamp7-dev/
+
+
+docker-compose exec php-task /bin/bash
+
+
+cd /home/dev/htdocs/mancando/
+
+
+cd garage4.0.0/console
+php index.php picc/picc-order/handle

@@ -1,0 +1,9 @@
+1、class判断的三元运算符写法
+<img [ngClass]="btnClass == true?'yure':'huodong'" src="{{activityBtn}}" alt="">
+2、ion-checkbox选中的问题
+html：
+<ion-item *ngFor="let item of goodsItems">
+ <ion-label>{{item.name}}</ion-label>
+ <ion-checkbox item-end [(ngModel)]="item.checked" (click)="selectGoodItems()"></ion-checkbox>
+</ion-item>
+ts文件:设置checked是true或者是false即可

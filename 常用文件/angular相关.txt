@@ -1,0 +1,9 @@
+做angular demo报错: Uncaught Error: Unexpected directive 'ScrollSpyDirective' imported by the module 'AppModule'. Please add a @NgModule annotation。解决问题时发现对@NgModule中import、declarations、providers这三个配置信息理解不是很到位。特此整理下。
+
+ 每个模块的@NgModule中都会包含import、declarations、providers三个配置节，他们的具体含义为：
+
+import：当前模块导入的其他模块，import应该导入的是module，而不是compnents或者services
+
+declarations:当前模块内包含的公共组件、指令信息。declarations生命的是components，而不是module或者services
+
+providers:当前模块可以使用的公共服务(可以为本模块内提供的服务，也可以是其他npm包中导入的服务)。provider提供的应该是services，而不是compnents或者modules。

@@ -1,0 +1,15 @@
+1、列表页加载完后的回调
+<?= $form->table([
+				
+         'head' => [
+                    '商户号'		=> ['width'=>'10%'],
+                    '商户名'		=> ['width'=>'15%'],
+					
+		    "销售订单次数<i class='fa fa-sort-amount-desc sort active'></i>"  => ['width'=>'10%','class'=>'orderTime'],
+				],
+	'url'  => ['list'],
+	'load' => true,
+        'afterLoad' => new \yii\web\JsExpression('function loaded(){
+                      console.log('123');
+                    }'),
+			]) ?>

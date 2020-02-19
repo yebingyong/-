@@ -1,0 +1,28 @@
+ionic cordova plugin remove cordova-plugin-yingshi
+
+添加
+ionic cordova plugin add E:\htdocs\mancando\cordova-plugin\yingshi
+
+查看插件
+ionic cordova plugin list
+
+打包
+ionic cordova build android
+
+添加设备
+ionic cordova run android -target 4c39aba6
+
+查看设备号
+adb devices
+
+cordova自定义插件创建
+plugman create --name toast-plugin --plugin_id toast-plugin --plugin_version 1.0.0
+
+--name toast-plugin --> 插件名
+
+--plugin_id toast-plugin --> 插件ID
+
+--plugin_version 1.0.0 --> 插件版本号
+
+初始化插件
+npm init

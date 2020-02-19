@@ -1,0 +1,21 @@
+还原到上个版本 git reset --hard HEAD
+还原到某个版本 git reset --hard 版本号 
+
+Bug分支
+1、dev上面修改时，要先弄个分支出来修复bug，可以先stash，把当前工作现场隐藏起来。（能stash的前提是，修改的东西还没commit）
+命令
+1、git stash 隐藏
+然后就可以去创建分支去修复bug，然后再切换回来dev去合并
+2、git stash list去查看
+3、git stash apply 恢复，git stash drop去删除 git stash pop回复并删除
+
+拉远程分支
+git checkout -b dev origin/dev
+
+本地分支和远程分支建立联系
+git branch --set-upstream-to=origin/远程分支名 本地分支名
+git branch --set-upstream-to=origin/dev dev
+
+推送到远程分支
+git push origin 分支名
+当前分支为该分支时 git push 即可

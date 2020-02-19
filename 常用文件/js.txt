@@ -1,0 +1,23 @@
+1、捕获方式
+$category.find("option:selected").text();
+ 
+ $("input[class='selectProductData']").remove()
+
+我们可以使用 JSON.stringify() 方法将 JavaScript 对象转换为字符串。
+
+2、最近的祖级元素 closest()
+3、用data捕获或者赋值时，不要大小写
+
+
+首先 vue的点击事件 是用 @click = “clickfun()” 属性 在html中绑定的,
+在点击的函数中 添加$event 参数就可以
+比如
+<button @click = “clickfun($event)”>点击</button>
+ 
+methods: {
+clickfun(e) {
+// e.target 是你当前点击的元素
+// e.currentTarget 是你绑定事件的元素
+// e.属性名，即可获取当前元素的属性
+}
+},

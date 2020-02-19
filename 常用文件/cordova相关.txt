@@ -1,0 +1,7 @@
+1/如果当前你的插件代码没有和 UI 进行交互，或者有耗时的操作希望能运行在独立线程中，可以使用下面的代码
+cordova.getThreadPool().execute(new Runnable() {
+  @Override
+  public void run() {
+    // 你要执行的代码
+  }
+});

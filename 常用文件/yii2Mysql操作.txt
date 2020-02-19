@@ -1,0 +1,274 @@
+1、表关联时，添加关联条件时，用onCondition不是用where
+
+$productQuery->joinWith(['cardTemplateDiscount'=>function($subque) use($storeId,$cardId){
+            $subque->onCondition(['and',['card_template_discount_product_item.store_id'=>$storeId],['card_template_discount_product_item.template_id'=>$cardId]]);
+        }]);
+
+2、统计副表时，可采用先统计出副表部分再leftjoin主表，
+leftJoin的两种方式
+$recordStoreSql = "(SELECT store.id, store.name AS storeName FROM store) recordStore ";
+$query->leftJoin($recordStoreSql,'card_template.store_id = recordStore.id');
+
+$sq2 =  CardTemplateStoreItem::find();
+$sq2->select(['card_template_store_item.template_id as templateId','group_concat(store.name) as storeNames','group_concat(store.id) as storeIds']);
+$sq2->joinWith(['store']);
+$sq2->groupBy(['card_template_store_item.template_id']);
+$query->leftJoin(['storeItems'=>$sq2],['card_template.id'=>new Expression('storeItems.templateId')]);
+
+3、插入参数方法
+->where('wechat_openid = :openId',['openId' => $openId])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+1、待验证！！！！会出现翻倍现象？？一对多的关系时，统计副表的字段值时，groubly时要添加相应副表关联字段,如customer和repair_order关联，groubly(['customer.id','repaire_order.customer_id'])
+
+
+1、源生的sql语句操作
+  public static function updateQuantity($activityId, $customerId, $quantity, $expandId = null) {
+        $table = self::tableName();
+        $db = self::getDb();
+        
+        $sql = "INSERT INTO {$table} SET activity_id=:activityId, customer_id=:customerId, quantity=:quantity, 
+            create_time = NOW(), update_time = NOW() ON DUPLICATE KEY UPDATE quantity= quantity +:quantity, update_time = NOW()";
+        $params = [
+            ':activityId' => $activityId,
+            ':customerId'  => $customerId,
+            ':quantity' => intval($quantity),
+        ];
+        
+        $command = $db->createCommand($sql, $params);       
+        return $command->execute();
+    }
+
+2、增加字段值 
+  public function increase($quantity, $maxQuantity=-1) {
+        $quantity = intval($quantity);
+        if (abs($quantity) < 1) {
+            return true;
+        }
+        
+        $attributes = [];
+        $attributes['quantity'] = new Expression('quantity + '.$quantity);
+        $attributes['update_time'] = $this->expressionNow();
+        
+        if($maxQuantity == -1){
+            $condition = "id=:id";
+            $params = [':id'=>$this->id];
+        }else{
+            $condition = "id=:id AND quantity + :quantity <= :maxQuantity";
+            $params = [':id'=>$this->id, ':quantity'=>$quantity, ':maxQuantity' => $maxQuantity];
+        }
+        
+        if ($this->updateAll($attributes, $condition,$params) <= 0) {
+            return $this->addError('quantity', '更新数量失败');
+        }
+        
+        return true;
+    }
+3、更新状态
+  public function updateStatus($newStatus, $oldStatus = null, $attributes = []) {
+        $attributes['status'] = $newStatus;
+        $attributes['update_time'] = $this->expressionNow();
+        
+        $condition = ['id' => $this->id];
+        if (is_array($oldStatus)) {
+            $condition = ['and', $condition, ['in', 'status', $oldStatus]];
+        } else if ($oldStatus) {
+            $condition = ['and', $condition, ['status' => $oldStatus]];
+        }
+        
+        if ($this->updateAll($attributes, $condition) <= 0) {
+            return false;
+        }
+        
+        foreach ($attributes as $key => $value) {
+            $this->$key = $value;
+        }
+        
+        return true;
+    }
+4、表关系为一对多 ，统计副表的数值，多个表 时，采用左链接 
+       $query = Tenant::find();
+        $query->select([
+            'tenant.id AS id',
+            'IFNULL(log.loginLogNum,0) AS loginLogNum',
+            'sum(IFNULL(orderTable.orderNum,0)+IFNULL(cardTable.cardNum,0))  AS orderNum',
+        ]);
+        //登录次数
+        $logSql = "(SELECT tenant_id,count(tenant_id) AS loginLogNum FROM login_log GROUP BY tenant_id) log";
+        
+        $query->leftJoin($logSql,'tenant.id = log.tenant_id');
+        //销售单
+        $orderSql = "(SELECT tenant_id,count(tenant_id) AS orderNum FROM repair_order Where status = ".RepairOrder::STATUS_15000 GROUP BY tenant_id) orderTable";
+        $query->leftJoin($orderSql,'tenant.id = orderTable.tenant_id');
+
+        //开卡
+        $cardSql = "(SELECT tenant_id,count(tenant_id) AS cardNum FROM card_purchase_order GROUP BY tenant_id) cardTable";
+        $query->leftJoin($cardSql,'tenant.id = cardTable.tenant_id');
+   
+        $query->andFilterWhere(['like','tenant.name',$form->name]);
+        $query->andFilterWhere(['like','tenant.number',$form->number]);
+        $condition = QueryHelper::timeRange('tenant.activate_time', $form->activateTime);
+        $query->andFilterWhere($condition);
+        $query->groupBy([
+            'tenant.id'
+        ]);
+
+        $orderBy = ['create_time' =>  SORT_DESC,'loginLogNum'=>SORT_DESC,'orderNum'=>SORT_DESC];
+       
+        $query->orderBy($orderBy);
+
+        $command = $query->createCommand();
+        $dataProvider = new SqlDataProvider([
+            'sql' => $command->getSql(),
+            'params' => $command->params,
+            'totalCount' => $query->count(),
+            'pagination' => [
+                'pageSize'=>$this->getOption('pagesize'),
+            ],
+        ]);
+关键词通过副表来筛选
+ $params  = [];
+	    $query = RepairOrder::find();
+	    $query->with(['serviceItems',  'productItems']);
+	    $query->where(['and',['repair_order.vehicle_id'=>$vehicleId],['<>','repair_order.status',RepairOrder::STATUS_21000]]);
+	    if ($keyWord) {
+            $params[':serviceItemName'] = '%'.$keyWord.'%';
+            $params[':productName'] = '%'.$keyWord.'%';
+            $serviceItemQuery = "EXISTS(SELECT 1 FROM repair_order_service_item WHERE 
+            repair_order_service_item.order_id = repair_order.id AND repair_order_service_item.service_item_name LIKE :serviceItemName)";
+            $productItemQuery = "EXISTS(SELECT 1 FROM repair_order_product_item WHERE 
+            repair_order_product_item.order_id = repair_order.id AND repair_order_product_item.product_name LIKE :productName)";
+            $query->andWhere(['or', new Expression($serviceItemQuery), new Expression($productItemQuery)]);
+        }
+
+        $query->params($params);
+	    $query->orderBy(['repair_order.order_date'=>SORT_DESC]);
+	    $data = $query->all();
+
+5、以主表的一个日期order_date来groupby，关键词通过副表来筛选，显示当天所有的副表信息，查出之后，再数据整理
+（主表一对多副表，筛选条件为副表）
+ $params  = [];
+	    $query = RepairOrder::find();
+	    $query->with(['serviceItems',  'productItems']);
+	    $query->where(['and',['repair_order.vehicle_id'=>$vehicleId],['<>','repair_order.status',RepairOrder::STATUS_21000]]);
+	    if ($keyWord) {
+            $params[':serviceItemName'] = '%'.$keyWord.'%';
+            $params[':productName'] = '%'.$keyWord.'%';
+            $serviceItemQuery = "EXISTS(SELECT 1 FROM repair_order_service_item WHERE 
+            repair_order_service_item.order_id = repair_order.id AND repair_order_service_item.service_item_name LIKE :serviceItemName)";
+            $productItemQuery = "EXISTS(SELECT 1 FROM repair_order_product_item WHERE 
+            repair_order_product_item.order_id = repair_order.id AND repair_order_product_item.product_name LIKE :productName)";
+            $query->andWhere(['or', new Expression($serviceItemQuery), new Expression($productItemQuery)]);
+        }
+
+
+        $query->params($params);
+	    $query->orderBy(['repair_order.order_date'=>SORT_DESC]);
+	    $data = $query->all();
+ $items = [];
+	    if(!empty($data)){
+            foreach ($data as $order) {
+                if(isset($items[$order->order_date])){
+                    $items[$order->order_date]['totalAmount'] += $order->total_amount;
+                    if(!empty($order->serviceItems)){
+                        foreach ($order->serviceItems as $k){
+                            array_push($items[$order->order_date]['products'],$k->service_item_name);
+                        }
+                    }
+                    if(!empty($order->productItems)){
+                        foreach ($order->productItems as $k){
+                            array_push($items[$order->order_date]['products'],$k->product_name);
+                        }
+                    }
+                }else{
+                    $items[$order->order_date]['totalAmount'] = $order->total_amount;
+                    $products = [];
+                    if(!empty($order->serviceItems)){
+                        foreach ($order->serviceItems as $k){
+                            array_push($products,$k->service_item_name);
+                        }
+                    }
+                    if(!empty($order->productItems)){
+                        foreach ($order->productItems as $k){
+                            array_push($products,$k->product_name);
+                        }
+                    }
+                    $items[$order->order_date]['products'] = $products;
+
+                }
+
+            }
+        }
+
+ /**
+     * 获取订单统计数据
+     * @param integer $type
+     * @return string
+     */
+    private function getOrderData($startTime, $endTime) {
+        $statusCondition = $this->getStatusCondition();
+        $productType = RepairOrderProductItem::CARD_ITEM_TYPE_1;
+        $serviceType = RepairOrderServiceItem::CARD_ITEM_TYPE_1;
+        $sql = "select
+	detail.orderDate,
+	count(1) as orderNum,
+	sum(detail.productBargainTotalPrice) as productBargainTotalPrice,
+	sum(detail.serviceBargainTotalPrice) as serviceBargainTotalPrice,
+	round(sum(detail.actualSalePrice) / count(DISTINCT detail.customer_id), 2) as avgCustomerPrice,
+	sum(detail.actualSalePrice) as actualSaleTotalPrice,
+	sum(detail.discount_amount) as discountAmount,
+	sum(detail.card_pay_amount) as cardPayAmount
+from (
+	SELECT
+	DATE_FORMAT(o.order_date, '%Y/%m/%d') as  orderDate,
+	(o.total_amount - o.discount_amount-o.card_deductible_amount-o.card_pay_amount) as actualSalePrice,
+	o.discount_amount,
+	o.card_pay_amount,
+	o.customer_id,
+	(select IFNULL(sum(if(p.card_item_type ={$productType},0,p.bargain_total_price)), 0) from repair_order_product_item p where p.order_id = o.id) as productBargainTotalPrice,
+	(select IFNULL(sum(if(s.card_item_type ={$serviceType},0,s.bargain_total_price)), 0) from repair_order_service_item s where s.order_id = o.id) as serviceBargainTotalPrice
+	from repair_order o
+	where 
+        o.tenant_id = :tenantId and 
+        o.store_id = :storeId and 
+        o.order_date >= :startTime and 
+        o.order_date <= :endTime 
+        {$statusCondition[0]}
+) detail
+group by detail.orderDate order by detail.orderDate";
+        
+        $sqlParam = [
+            ':tenantId' => $this->getTenantId(),
+            ':startTime' => $startTime,
+            ':endTime'  => $endTime,
+            ':storeId' => $this->getStoreId(),
+        ];
+        
+        $sqlParam = array_merge($sqlParam, $statusCondition[1]);
+        
+        //执行查询
+        $db = (new RepairOrder())->getDb();
+        $data = $db->createCommand($sql, $sqlParam)->queryAll();
+
+        return $data;
+    }

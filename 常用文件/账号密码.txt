@@ -1,0 +1,21 @@
+快修宝：18405090062；密码654123
+id:136   default_distribution_id:2,新华店服务商
+
+wifi密码yykc2tea
+
+svn yeby yeby@Mnr28%Twq65
+禅道  yeby  654123Aa
+
+garage id = 136 default_distribution_id = 2
+
+服务商、快修宝正式网：15260893327 密码201888
+
+测试网
+
+http://test.mancando.cn/admin/
+
+admin   654123Aa@com
+
+http://test.mancando.cn/garage-admin/
+测试服务商：紫云店
+快修宝18859256184

@@ -16,7 +16,10 @@ http://test.mancando.cn/admin/
 
 admin   654123Aa@com
 
+快修保后台管理
 http://test.mancando.cn/garage-admin/
+快修保地址
+http://test.mancando.cn/kxb/
 测试服务商：紫云店
 快修宝18859256184
  

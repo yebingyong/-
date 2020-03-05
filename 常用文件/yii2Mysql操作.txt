@@ -17,8 +17,12 @@ $query->leftJoin(['storeItems'=>$sq2],['card_template.id'=>new Expression('store
 
 3、插入参数方法
 ->where('wechat_openid = :openId',['openId' => $openId])
-
-
+4表关联：
+$query = CardTemplate::find();
+ $q = CardTemplateServiceItem::find();
+ $q->select(['template_id as templateId', 'sum(hours_price*working_hours*quantity) as service_items_total']);
+ $q->groupBy(['template_id']);
+ $query->leftJoin(['serviceItems'=>$q],['card_template.id'=>new Expression('serviceItems.templateId')]);
 
 
 

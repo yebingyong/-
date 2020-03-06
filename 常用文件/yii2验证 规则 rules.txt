@@ -6,3 +6,5 @@ whenclient 代表是客户端的判断条件，js生效条件。
             }"],
 2、自定义方法时，为空时照样认证
  [['sale'], 'validateSale','skipOnEmpty' => false],
+3、三个属性一起唯一认证
+[['store_id', 'type', 'item_id'], 'unique', 'targetAttribute' => ['store_id', 'type', 'item_id'], 'message' => '重复插入数据'], 

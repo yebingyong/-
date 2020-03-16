@@ -7,3 +7,6 @@ html：
  <ion-checkbox item-end [(ngModel)]="item.checked" (click)="selectGoodItems()"></ion-checkbox>
 </ion-item>
 ts文件:设置checked是true或者是false即可
+
+
+<ion-checkbox checked="true" (click)="updateItem(item)"></ion-checkbox>

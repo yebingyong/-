@@ -1,0 +1,4 @@
+1、进入mysql
+ 查看容器 docker ps
+ 进入容器 docker exec -it 4fab23f0766b /bin/bash
+ 进入数据库 mysql

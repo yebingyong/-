@@ -9,3 +9,4 @@ Ctrl+H	 替换
  sublime复制当前行到下一行
 
 Ctrl+shift+d：快速复制光标所在的一整行，并复制到改行之前。
+ 

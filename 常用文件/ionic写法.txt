@@ -10,3 +10,5 @@ ts文件:设置checked是true或者是false即可
 
 
 <ion-checkbox checked="true" (click)="updateItem(item)"></ion-checkbox>
+
+eval往object对象塞元素

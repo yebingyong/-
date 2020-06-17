@@ -8,6 +8,8 @@ ionic cordova plugin list
 
 打包
 ionic cordova build android
+打包出错时，可查看详细信息
+ionic cordova build android --info
 
 添加设备
 ionic cordova run android -target 4c39aba6

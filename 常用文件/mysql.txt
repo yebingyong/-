@@ -9,3 +9,7 @@ Union All：对两个结果集进行并集操作，包括重复行，不进行排序。
 union 和 union all都可以将多个结果集合并，而不仅仅是两个，你可以将多个结果集串起来。 
 
 使用union和union all必须保证各个select 集合的结果有相同个数的列，并且每个列的类型是一样的。但列名则不一定需要相同
+
+
+
+group_concat 字符串拼接 group_concat(product_number.number SEPARATOR";") AS oeNumber',

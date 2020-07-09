@@ -1,0 +1,2 @@
+查找node的安装位置
+win + R键,输入cmd回车,输入where node 回车

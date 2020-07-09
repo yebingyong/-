@@ -22,4 +22,7 @@ http://test.mancando.cn/garage-admin/
 http://test.mancando.cn/kxb/
 测试服务商：紫云店
 快修宝18859256184
+
+快修宝正式包：密钥库口令：Mancando@2017$KuM76
+密钥口令：g.mancando.cn@2017$MLyt43
  

@@ -1,0 +1,22 @@
+当项目包含的页面文件很多时，编译使用--prod选项时，可能会报如下的内存溢出错误：
+FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory
+
+处理方法：
+找到node安装目录下的ionic(linux，注意在Windows下面使用Cygwin，也是执行这个命令)或ionic.cmd(windows)文件，修改文件，为node添加--max-old-space-size选项，指定node使用的内存，如下：
+if [ -x "$basedir/node" ]; then
+  "$basedir/node"   --max-old-space-size=8192 "$basedir/node_modules/ionic/bin/ionic" "$@"
+  ret=$?
+else
+  node   --max-old-space-size=8192 "$basedir/node_modules/ionic/bin/ionic" "$@"
+  ret=$?
+fi
+
+
+或
+@IF EXIST "%~dp0\node.exe" (
+  "%~dp0\node.exe"  --max-old-space-size=8192 "%~dp0\node_modules\ionic\bin\ionic" %*
+) ELSE (
+  @SETLOCAL
+  @SET PATHEXT=%PATHEXT:;.JS;=;%
+  node  --max-old-space-size=8192 "%~dp0\node_modules\ionic\bin\ionic" %*
+)

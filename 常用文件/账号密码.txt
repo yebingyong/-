@@ -26,3 +26,5 @@ http://test.mancando.cn/kxb/
 快修宝正式包：密钥库口令：Mancando@2017$KuM76
 密钥口令：g.mancando.cn@2017$MLyt43
  
+
+测试网快修宝账号；18359137511   123456

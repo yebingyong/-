@@ -24,6 +24,23 @@ $query = CardTemplate::find();
  $q->groupBy(['template_id']);
  $query->leftJoin(['serviceItems'=>$q],['card_template.id'=>new Expression('serviceItems.templateId')]);
 
+同个表多个字段关联同一个表的同个字段
+表关联照样定义，在sql语句声明时，用AS取别名
+ $query->select([
+            
+            'return_employee.name AS returnUserName',
+            'delete_employee.name AS deleteUserName',
+            'employee.name AS userName',
+        ]);
+$query->joinWith(['returnUser','deleteUser AS delete_employee','employee','supplier','store','items']);
+
+5.updateAll，判断是否更新成功时的判断，用try
+try{
+            $this->updateAll($attributes, $condition,$params);
+        }catch (Exception $e){
+            return false;
+        }
+
 
 
 

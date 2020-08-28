@@ -26,5 +26,10 @@ plugman create --name toast-plugin --plugin_id toast-plugin --plugin_version 1.0
 
 --plugin_version 1.0.0 --> 插件版本号
 
-初始化插件
+1进入文件夹
+
+2初始化插件
 npm init
+
+3.添加安卓平台支持
+plugman platform add --platform_name android

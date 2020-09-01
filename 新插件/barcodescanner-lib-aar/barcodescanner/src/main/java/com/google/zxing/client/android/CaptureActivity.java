@@ -22,8 +22,12 @@ import android.content.pm.FeatureInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.widget.Button;
 
@@ -276,7 +280,9 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             showProductCount.setVisibility(View.VISIBLE);
             showProductCount.setText("共"+products.length+"件，已扫0件");
             showProductCount2.setVisibility(View.VISIBLE);
-            showProductCount2.setText("剩余"+products.length+"件");
+            SpannableString spannableString = new SpannableString("剩余"+(products.length)+"件");
+            spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#ffcc0000")), 1, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            showProductCount2.setText(spannableString);
         }
         //循环显示商品列表
         for (int i = 0; i < products.length; i++) {
@@ -891,7 +897,9 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                     }
                 }
                 showProductCount.setText("共"+products.length+"件，已扫"+hasScanned+"件");
-                showProductCount2.setText("剩余"+(products.length-hasScanned)+"件");
+                SpannableString spannableString = new SpannableString("剩余"+(products.length-hasScanned)+"件");
+                spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#ffcc0000")), 1, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                showProductCount2.setText(spannableString);
                 if (hasFind) {
                     play_voice_find();
                     TextView view = (TextView) linearLayout.getChildAt(choose == 0 ? 2 : (choose * 3 + 2));

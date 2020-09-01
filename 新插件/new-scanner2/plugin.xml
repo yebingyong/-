@@ -1,0 +1,37 @@
+<?xml version='1.0' encoding='utf-8'?>
+<plugin id="cordova-plugin-new-scanner" version="1.0.0" xmlns="http://apache.org/cordova/ns/plugins/1.0" xmlns:android="http://schemas.android.com/apk/res/android">
+	<name>newScanner</name>
+	<js-module name="NewScanner" src="www/NewScanner.js">
+		<clobbers target="NewScanner" />
+	</js-module>
+	<platform name="android">
+		<config-file parent="/*" target="res/xml/config.xml">
+			<!-- JS调用时的名字 -->
+			<feature name="NewScanner">
+				<!-- value：的值是对应的插件中NewScanner.java存放的路径 -->
+				<param name="android-package" value="cn.mancando.cordovaplugin.newscanner.NewScanner" />
+			</feature>
+		</config-file>
+		<config-file parent="/*" target="AndroidManifest.xml"></config-file>
+		<source-file src="src/android/NewScanner.java" target-dir="src/cn/mancando/cordovaplugin/newscanner" />
+
+
+		<config-file target="AndroidManifest.xml" parent="/manifest/application">
+      	<activity android:name="com.google.zxing.client.android.CaptureActivity" android:clearTaskOnLaunch="true" android:configChanges="orientation|keyboardHidden|screenSize" android:theme="@android:style/Theme.NoTitleBar.Fullscreen" android:windowSoftInputMode="stateAlwaysHidden" android:exported="false" />
+      	<activity android:name="com.google.zxing.client.android.encode.EncodeActivity" android:label="Share"/>
+    	</config-file>
+    	<config-file target="AndroidManifest.xml" parent="/manifest">
+      		<uses-permission android:name="android.permission.CAMERA"/>
+      		<uses-permission android:name="android.permission.FLASHLIGHT"/>
+      		<uses-feature android:name="android.hardware.camera" android:required="true"/>
+      		<!-- 待确定 1允许程序振动 2允许程序访问网络连接，可能产生GPRS流量-->
+      		<uses-permission android:name="android.permission.VIBRATE"/>
+      		<uses-permission android:name="android.permission.INTERNET"/>
+    	</config-file>
+    	<framework src="src/android/barcodescanner.gradle" custom="true" type="gradleReference"/>
+    	<resource-file src="src/android/barcodescanner.aar" target="libs"/>
+    	<!-- 一个插件依赖于另一个插件？ -->
+    	<dependency id="cordova-plugin-compat" version="^1.0.0"/>
+
+	</platform>
+</plugin>

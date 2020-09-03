@@ -8,7 +8,7 @@
 		<config-file parent="/*" target="res/xml/config.xml">
 			<!-- JS调用时的名字 -->
 			<feature name="NewScanner">
-				<!-- value：的值是对应的插件中NewScanner.java存放的路径 -->
+				<!-- value：的值是对应的插件中NewScanner. java存放的路径 -->
 				<param name="android-package" value="cn.mancando.cordovaplugin.newscanner.NewScanner" />
 			</feature>
 		</config-file>

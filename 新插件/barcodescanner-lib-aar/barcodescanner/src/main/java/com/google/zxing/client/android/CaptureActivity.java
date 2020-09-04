@@ -25,6 +25,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.hardware.Camera;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Html;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
@@ -205,27 +206,39 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         //商品赋值
         products = new String[3][];
         for (int i = 0; i < products.length; i++) {
-            String[] product = new String[4];
+            String[] product = new String[7];
             if (i == 0) {
-                product[0] = "21300987786";
-                product[1] = "库位1";
-                product[2] = "商品数量0\\" + 3;
+                product[0] = "213009877836";
+                product[1] = "21300987786";
+                product[2] = "213009877862";
+                product[3] = "库位1";
+                product[4] = "0";
+                product[5] = "3";
+                product[6] = "1";//是否扫描当前商品
 
             }
             if (i == 1) {
-                String[] product1 = new String[3];
-                product[0] = "21103120200108";
-                product[1] = "库位2";
-                product[2] = "商品数量0\\" + 3;
+                product[0] = "211031202001028";
+                product[1] = "211031202001308";
+                product[2] = "21103120200108";
+                product[3] = "库位2";
+                product[4] = "0";
+                product[5] = "3";
+                product[6] = "0";//是否扫描当前商品
             }
             if (i == 2) {
-                String[] product2 = new String[3];
-                product[0] = "19940516";
-                product[1] = "库位3";
-                product[2] = "商品数量0\\" + 3;
+                product[0] = "199405136";
+                product[1] = "199403516";
+                product[2] = "19940516";
+                product[3] = "库位3";
+                product[4] = "0";
+                product[5] = "3";
+                product[6] = "0";//是都否描当前商品
             }
             products[i] = product;
         }
+
+        productsCount = 9;
 
     }
 
@@ -265,6 +278,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
 
         resultView = findViewById(R.id.result_view);
         statusView = (TextView) findViewById(R.id.status_view);
+
         flipButton = (Button) findViewById(R.id.flip_button);
         torchButton = (Button) findViewById(R.id.torch_button);
         handler = null;
@@ -276,37 +290,41 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
         linearLayout = (LinearLayout) findViewById(R.id.linearLayout2);
         showProductCount = findViewById(R.id.show_product_count);
         showProductCount2 = findViewById(R.id.show_product_count2);
-        if(isInOut){
+        if (isInOut) {
             showProductCount.setVisibility(View.VISIBLE);
-            showProductCount.setText("共"+products.length+"件，已扫0件");
+            showProductCount.setText("共" + productsCount + "件，已扫0件");
+            showProductCount.setTextColor(Color.rgb(25, 0, 0));
             showProductCount2.setVisibility(View.VISIBLE);
-            SpannableString spannableString = new SpannableString("剩余"+(products.length)+"件");
-            spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#ffcc0000")), 1, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-            showProductCount2.setText(spannableString);
-        }
-        //循环显示商品列表
-        for (int i = 0; i < products.length; i++) {
-            TextView textview = new TextView(this);
-            textview.setText(products[i][0]);
-            textview.setGravity(Gravity.CENTER);
-            textview.setHeight(dip2px(this, 20));
+//            SpannableString spannableString = new SpannableString("剩余"+(products.length)+"件");
+//            spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#ffcc0000")), 1, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            showProductCount2.setText("剩余" + (productsCount) + "件");
+            ;
+//            showProductCount2.setBackgroundColor(Color.rgb(255,255,255));
+
+            //循环显示商品列表
+            for (int i = 0; i < products.length; i++) {
+                TextView textview = new TextView(this);
+                textview.setText(products[i][0]);
+                textview.setGravity(Gravity.CENTER);
+                textview.setHeight(dip2px(this, 20));
 //            textview.setPadding(5, 5, 5, 5);
 //            textview.setTextSize(dip2px(this,18));
-            linearLayout.addView(textview);
-            TextView textview2 = new TextView(this);
-            textview2.setText(products[i][1]);
-            textview2.setGravity(Gravity.CENTER);
-            textview2.setHeight(dip2px(this, 50));
-            textview2.setPadding(5, 5, 5, 5);
-            textview2.setTextSize(dip2px(this, 18));
-            linearLayout.addView(textview2);
-            TextView textview3 = new TextView(this);
-            textview3.setText(products[i][2]);
-            textview3.setGravity(Gravity.CENTER);
-            textview3.setHeight(dip2px(this, 20));
+                linearLayout.addView(textview);
+                TextView textview2 = new TextView(this);
+                textview2.setText(products[i][3]);
+                textview2.setGravity(Gravity.CENTER);
+                textview2.setHeight(dip2px(this, 50));
+                textview2.setPadding(5, 5, 5, 5);
+                textview2.setTextSize(dip2px(this, 18));
+                linearLayout.addView(textview2);
+                TextView textview3 = new TextView(this);
+                textview3.setText("数量:" + products[i][4] +"\\"+ products[i][5]);
+                textview3.setGravity(Gravity.CENTER);
+                textview3.setHeight(dip2px(this, 20));
 //            textview3.setPadding(5, 5, 5, 5);
 //            textview3.setTextSize(dip2px(this,18));
-            linearLayout.addView(textview3);
+                linearLayout.addView(textview3);
+            }
         }
 
 
@@ -797,7 +815,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     // Briefly show the contents of the barcode, then handle the result outside Barcode Scanner.
     //简要显示条形码的内容，然后在条形码扫描仪外处理结果。
     private void handleDecodeExternally(Result rawResult, ResultHandler resultHandler, Bitmap barcode) {
-        Log.d(TAG, "handleDecodeExternally: aaa" + rawResult);
         if (barcode != null) {
             //显示扫描结果图
             if (!isInOut) {
@@ -824,7 +841,10 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             if (rawResultString.length() > 32) {
                 rawResultString = rawResultString.substring(0, 32) + " ...";
             }
-            statusView.setText(getString(resultHandler.getDisplayTitle()) + " : " + rawResultString);
+            if (!isInOut) {
+                statusView.setText(getString(resultHandler.getDisplayTitle()) + " : " + rawResultString);
+            }
+
         }
 
         if (copyToClipboard && !resultHandler.areContentsSecure()) {
@@ -873,52 +893,71 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
             } else {
                 int choose = 0;
                 boolean hasFind = false;
-                int hasScanned = 0;
                 //添加数量，及定位
                 for (int i = 0; i < products.length; i++) {
-                    int quantity = Integer.parseInt(products[i][2].substring(products[i][2].length() - 1, products[i][2].length()));
-                    int currentQuantity = Integer.parseInt(products[i][2].substring(products[i][2].length() - 3, products[i][2].length() - 2));
-                    if (products[i][0].equals(rawResult.toString())) {
-                        if (quantity == currentQuantity) {
-                            hasScanned++;
-                            break;
-                        } else {
-                            currentQuantity++;
-                        }
-                        String currentPruduct = products[i][2].substring(0, (products[i][2].length() - 3));
-                        products[i][2] = currentPruduct + Integer.toString(currentQuantity) + "\\" + Integer.toString(quantity);
-
+                    //是否查找当前商品
+                    if (Integer.parseInt(products[i][6]) == 1) {
                         choose = i;
-                        hasFind = true;
+
+                        int quantity = Integer.parseInt(products[i][5]);
+                        int currentQuantity = Integer.parseInt(products[i][4]);
+                        if (quantity != currentQuantity) {
+                            if (products[i][0].equals(rawResult.toString()) || products[i][1].equals(rawResult.toString()) || products[i][2].equals(rawResult.toString())) {
+                                scannnedCount++;
+                                currentQuantity++;
+                                products[i][4] = Integer.toString(currentQuantity);
+
+                                hasFind = true;
+                                //扫描完毕时，扫描下一个商品
+                                if(currentQuantity == quantity){
+                                    products[i][6] = "0";
+                                    if(i != (products.length-1)){
+                                        products[i+1][6] = "1";
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
+
                     }
 
-                    if (quantity == currentQuantity) {
-                        hasScanned++;
-                    }
                 }
-                showProductCount.setText("共"+products.length+"件，已扫"+hasScanned+"件");
-                SpannableString spannableString = new SpannableString("剩余"+(products.length-hasScanned)+"件");
+                showProductCount.setText("共" + productsCount + "件，已扫" + scannnedCount + "件");
+                SpannableString spannableString = new SpannableString("剩余" + (productsCount - scannnedCount) + "件");
                 spannableString.setSpan(new ForegroundColorSpan(Color.parseColor("#ffcc0000")), 1, 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                 showProductCount2.setText(spannableString);
                 if (hasFind) {
                     play_voice_find();
+                } else {
+                    play_voice_not_find();
+                }
+
+                //当前商品扫描完，跳到下一个商品
+                Log.d(TAG, "xxx"+choose);
+                Log.d(TAG, "xxx"+(Integer.parseInt(products[choose][5]) == Integer.parseInt(products[choose][4])));
+                Log.d(TAG, "xxx"+(Integer.parseInt(products[choose][5])));
+                Log.d(TAG, "xxx"+(Integer.parseInt(products[choose][4])));
+                if(hasFind){
                     TextView view = (TextView) linearLayout.getChildAt(choose == 0 ? 2 : (choose * 3 + 2));
                     if (view instanceof TextView) {
-                        view.setText(products[choose][2]);
-                        scrollY = dip2px(this, 90) * choose;
-                        Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                scrollView.scrollTo(0, scrollY);
-                            }
-                        }, 2000); // 延迟2秒
+                        view.setText("数量："+products[choose][4]+"\\"+products[choose][5]);
+                        //当前商品查询完毕，跳到下一个商品
+                        if(Integer.parseInt(products[choose][5]) == Integer.parseInt(products[choose][4])){
+                            scrollY = dip2px(this, 90) * (choose+1);
+                            Handler handler = new Handler();
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    scrollView.scrollTo(0, scrollY);
+                                }
+                            }, 2000); // 延迟2秒
+                        }
+
 
                     } else {
                         Toast.makeText(getApplicationContext(), "修改失败", Toast.LENGTH_LONG).show();
                     }
-                } else {
-                    play_voice_not_find();
                 }
 
 
@@ -934,7 +973,7 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
                     }
                 }, 2000);
 
-                if(hasScanned == products.length){
+                if (productsCount == scannnedCount) {
                     sendReplyMessage(R.id.return_scan_result, intent, resultDurationMS);
                 }
             }
@@ -1072,8 +1111,6 @@ public final class CaptureActivity extends Activity implements SurfaceHolder.Cal
     @Override
     public void onClick(View view) {
         Log.d(TAG, "onClick: " + view);
-        Toast.makeText(getApplicationContext(), "点击灯光", Toast.LENGTH_LONG).show();
-        Log.d(TAG, "onClick: 22222222");
         Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override

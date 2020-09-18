@@ -13,3 +13,19 @@ union 和 union all都可以将多个结果集合并，而不仅仅是两个，你可以将多个结果集串起
 
 
 group_concat 字符串拼接 group_concat(product_number.number SEPARATOR";") AS oeNumber',
+
+
+group by 的排序问题，比如：groupby后取最大值的一条
+ $subQuery3Internal = InventoryBatch::find();
+            $subQuery3Internal->select([
+                'max(batch_number) AS batchNumber',
+            ]);
+            $subQuery3Internal->andFilterWhere(['store_id'=>$storeId]);
+            $subQuery3Internal->groupBy(['product_id']);
+
+            $subQuery3 = InventoryBatch::find();
+            $subQuery3->select([
+                'product_id AS productId',
+                'unit_price AS unitPrice',
+            ]);
+            $subQuery3->andWhere(['batch_number' => $subQuery3Internal]);

@@ -1,3 +1,6 @@
 1、声明安卓版本号在E:\htdocs\mancando\garage-app\platforms\android\project.properties这个文件
-2、ionic 打包报错https://www.cnblogs.com/wupeng88/p/8533836.html
+2、ionic 打包报错https://www.cnblogs.com/wupeng88/p/8533836.html，打包出现这个页面的错误时，在E:\htdocs\mancando\garage-app\platforms\android\project.properties文件去声明指定版本
+
+
+
 3、sdk通过gradle获取的方式，cordova插件在plugin.xml加一行<framework src="src/android/yingshi.gradle" custom="true" type="gradleReference" />即可

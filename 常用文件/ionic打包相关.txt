@@ -1,3 +1,5 @@
+1/ionic打正式包内存超出怎么解决
+
 当项目包含的页面文件很多时，编译使用--prod选项时，可能会报如下的内存溢出错误：
 FATAL ERROR: CALL_AND_RETRY_LAST Allocation failed - JavaScript heap out of memory
 
@@ -20,3 +22,7 @@ fi
   @SET PATHEXT=%PATHEXT:;.JS;=;%
   node  --max-old-space-size=8192 "%~dp0\node_modules\ionic\bin\ionic" %*
 )
+
+
+2.打包时，修改版本号
+在config.xml文件里

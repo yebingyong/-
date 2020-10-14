@@ -5,4 +5,4 @@ ionic:
 
 
 ng:
-手机端访问开启命令：ng serve --disable-host-check --host 192.168.1.110 --open
+手机端访问开启命令：ng serve --disable-host-check --host 192.168.110.34 --open

@@ -29,3 +29,7 @@ group by 的排序问题，比如：groupby后取最大值的一条
                 'unit_price AS unitPrice',
             ]);
             $subQuery3->andWhere(['batch_number' => $subQuery3Internal]);
+
+
+2/left join 最新一条的记录方法 https://blog.csdn.net/qq_42176520/article/details/83268723
+( select SUBSTRING_INDEX(GROUP_CONCAT(opt_user_name order by add_time DESC),',',1) from lg_shop_users_opt_log where opt_type IN(1,2) AND user_id=uid) AS opt_user_name

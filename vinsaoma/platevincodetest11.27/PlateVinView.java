@@ -4,20 +4,24 @@ import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import com.google.zxing.DecodeHintType;
 import com.google.zxing.ResultPoint;
 import com.journeyapps.barcodescanner.BarcodeResult;
-import com.journeyapps.barcodescanner.Decoder;
-import com.journeyapps.barcodescanner.DecoderFactory;
-import com.journeyapps.barcodescanner.DecoderResultPointCallback;
-import com.journeyapps.barcodescanner.DecoderThread;
-import com.journeyapps.barcodescanner.DefaultDecoderFactory;
+//import com.journeyapps.barcodescanner.Decoder;
+//import com.journeyapps.barcodescanner.DecoderFactory;
+//import com.journeyapps.barcodescanner.DecoderResultPointCallback;
+//import com.journeyapps.barcodescanner.DecoderThread;
+//import com.journeyapps.barcodescanner.DefaultDecoderFactory;
 import com.journeyapps.barcodescanner.Util;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.etop.vin.VINAPI;
+import cn.mancando.cordovaplugin.platecode.plate.PlateApi;
 
 public class PlateVinView extends CameraPreview {
   private enum DecodeMode {
@@ -34,16 +38,18 @@ public class PlateVinView extends CameraPreview {
 
 
   private Handler resultHandler;
+  private VINAPI vinApi;
+  private PlateApi plateApi;
 
   private final Handler.Callback resultCallback = new Handler.Callback() {
     @Override
     public boolean handleMessage(Message message) {
       if (message.what == com.google.zxing.client.android.R.id.zxing_decode_succeeded) {
-        BarcodeResult result = (BarcodeResult) message.obj;
+        PlateVinResult result = (PlateVinResult) message.obj;
 
         if (result != null) {
           if (callback != null && decodeMode != PlateVinView.DecodeMode.NONE) {
-            callback.barcodeResult(result);
+            callback.plateVinResult(result);
             if (decodeMode == PlateVinView.DecodeMode.SINGLE) {
               stopDecoding();
             }
@@ -88,6 +94,7 @@ public class PlateVinView extends CameraPreview {
 
 
   /**
+   * 设置要使用的解码器工厂。使用此选项指定要解码的格式。
    * Set the DecoderFactory to use. Use this to specify the formats to decode.
    *
    * Call this from UI thread only.
@@ -111,7 +118,7 @@ public class PlateVinView extends CameraPreview {
     DecoderResultPointCallback callback = new DecoderResultPointCallback();
     Map<DecodeHintType, Object> hints = new HashMap();
     hints.put(DecodeHintType.NEED_RESULT_POINT_CALLBACK, callback);
-    Decoder decoder = this.decoderFactory.createDecoder(hints);
+    Decoder decoder = this.decoderFactory.createDecoder(hints,plateApi);
     callback.setDecoder(decoder);
     return decoder;
   }
@@ -131,9 +138,11 @@ public class PlateVinView extends CameraPreview {
    *
    * @param callback called with the barcode result, as well as possible ResultPoints
    */
-  public void decodeSingle(PlateVinCallback callback) {
+  public void decodeSingle(PlateVinCallback callback,PlateApi plateApi,VINAPI vinApi) {
     this.decodeMode = PlateVinView.DecodeMode.SINGLE;
     this.callback = callback;
+    this.plateApi = plateApi;
+    this.vinApi = vinApi;
     startDecoderThread();
   }
 
@@ -171,7 +180,7 @@ public class PlateVinView extends CameraPreview {
       // We only start the thread if both:
       // 1. decoding was requested
       // 2. the preview is active
-      decoderThread = new DecoderThread(getCameraInstance(), createDecoder(), resultHandler);
+      decoderThread = new DecoderThread(getCameraInstance(), createDecoder(), resultHandler,plateApi,vinApi);
       decoderThread.setCropRect(getPreviewFramingRect());
       decoderThread.start();
     }

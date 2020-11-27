@@ -1,5 +1,6 @@
 package cn.mancando.cordovaplugin.platevincodetest;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.FeatureInfo;
 import android.graphics.Color;
@@ -18,19 +19,31 @@ import android.app.ProgressDialog;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.camera2.CameraAccessException;
+import android.net.Uri;
+import android.os.Handler;
+import android.os.Message;
 import android.os.Vibrator;
+import android.telephony.TelephonyManager;
+import android.util.DisplayMetrics;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.ResultPoint;
-import com.journeyapps.barcodescanner.BarcodeResult;
-import com.journeyapps.barcodescanner.DefaultDecoderFactory;
 import com.journeyapps.barcodescanner.camera.CameraSettings;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import com.etop.vin.VINAPI;
+import cn.mancando.cordovaplugin.platecode.plate.PlateApi;
+import cn.mancando.cordovaplugin.platecode.plate.PlateApiException;
+import cn.mancando.cordovaplugin.vincode.utils.FileHelper;
+import cn.mancando.cordovaplugin.vincode.utils.UserIdUtils;
+import cn.mancando.cordovaplugin.vincode.vin.VinApi;
 
 /**
  * This class echoes a string called from JavaScript.
@@ -69,7 +82,14 @@ public class PlateVinCodeTest extends CordovaPlugin implements PlateVinCallback 
 
   private boolean switchFlashOn = false;
 
-  static class QRScannerError {
+  private VINAPI vinApi;
+  private PlateApi plateApi;
+  private boolean vinInitKernal = false;
+  private boolean plateInitKernal = true;
+  private int screenWidth;
+  private int screenHeight;
+
+  static class plateVinError {
     private static final int UNEXPECTED_ERROR = 0,
       CAMERA_ACCESS_DENIED = 1,
       CAMERA_ACCESS_RESTRICTED = 2,
@@ -84,6 +104,10 @@ public class PlateVinCodeTest extends CordovaPlugin implements PlateVinCallback 
   @Override
   public boolean execute(String action,final JSONArray args,final CallbackContext callbackContext) throws JSONException {
     this.callbackContext = callbackContext;
+    this.printResolution(cordova.getActivity());
+    //初始化识别接口
+    initKernal();
+
     if (action.equals("show")) {
       cordova.getThreadPool().execute(new Runnable() {
         public void run() {
@@ -114,9 +138,61 @@ public class PlateVinCodeTest extends CordovaPlugin implements PlateVinCallback 
         }
       });
       return true;
+    }else if (action.equals("enableLight")) {
+      cordova.getThreadPool().execute(new Runnable() {
+        public void run() {
+          while (cameraClosing) {
+            try {
+              Thread.sleep(10);
+            } catch (InterruptedException ignore) {
+            }
+          }
+          switchFlashOn = true;
+          if (hasFlash()) {
+            if (!hasPermission()) {
+              requestPermission(33);
+            } else
+              enableLight(callbackContext);
+          } else {
+            callbackContext.error(plateVinError.LIGHT_UNAVAILABLE);
+          }
+        }
+      });
+      return true;
+    }else if (action.equals("getImage")) {
+      this.getImage();
+      return true;
     }
 
     return false;
+  }
+
+  private void initKernal() {
+    if (vinApi == null) {
+      vinApi = new VINAPI();
+      String cacheDir = (cordova.getActivity().getExternalCacheDir()).getPath();
+      String userIdPath = cacheDir + "/" + UserIdUtils.UserID + ".lic";
+      TelephonyManager telephonyManager = (TelephonyManager) cordova.getActivity().getSystemService(Context.TELEPHONY_SERVICE);
+      int nRet = vinApi.VinKernalInit("", userIdPath, UserIdUtils.UserID, 0x01, 0x03, telephonyManager, cordova.getActivity());
+      if (nRet != 0) {
+        Toast.makeText(cordova.getActivity().getApplicationContext(), "激活失败("+nRet+")", Toast.LENGTH_SHORT).show();
+        vinInitKernal = false;
+        this.callbackContext.error("vin识别激活失败");
+      } else {
+        vinInitKernal = true;
+      }
+    }
+    if(plateApi == null){
+      // 初始化识别API
+      try {
+        plateApi = new PlateApi(cordova.getActivity());
+      } catch (PlateApiException e) {
+        Toast.makeText(cordova.getActivity().getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+        this.callbackContext.error("车牌识别激活失败");
+        plateInitKernal = false;
+      }
+    }
+
   }
 
   @Override
@@ -153,19 +229,51 @@ public class PlateVinCodeTest extends CordovaPlugin implements PlateVinCallback 
           break;
       }
     } else if (requestCode == ACTIVITY_REQUEST_CODE_GET_IMAGE) {
+      if (resultCode == Activity.RESULT_OK && data != null) {
+        Uri uri = data.getData();
+        if (uri == null) {
+          this.callbackContext.error("未正确选择图片");
+        } else {
+          progressDialog = new ProgressDialog(cordova.getActivity(), ProgressDialog.THEME_HOLO_LIGHT);
+          progressDialog.setTitle("提示");
+          progressDialog.setMessage("正在识别...");
+          progressDialog.setCancelable(false);
+          progressDialog.setIndeterminate(true);
+          progressDialog.show();
 
+          final Intent intent = data;
+          cordova.getThreadPool().execute(new Runnable() {
+            public void run() {
+              processImage(intent);
+            }
+          });
+        }
+      } else if (resultCode == Activity.RESULT_CANCELED) {
+        // 图片选择取消，不做处理
+      } else {
+        // 没有选择图片，不做处理
+      }
     }
   }
 
+  /**
+   * 打印不包括虚拟按键的分辨率、屏幕密度dpi、最小宽度sw
+   */
+  public void printResolution(Context context) {
+    DisplayMetrics dm = context.getResources().getDisplayMetrics();
+    screenHeight = dm.heightPixels;
+    screenWidth = dm.widthPixels;
+  }
+
   @Override
-  public void barcodeResult(BarcodeResult barcodeResult) {
+  public void plateVinResult(PlateVinResult plateVinResult) {
     if (this.nextScanCallback == null) {
       return;
     }
 
-    if(barcodeResult.getText() != null) {
+    if(plateVinResult.getNumber() != null) {
       scanning = false;
-      this.nextScanCallback.success(barcodeResult.getText());
+      this.nextScanCallback.success(plateVinResult.getNumber());
       this.nextScanCallback = null;
       //震动
       Vibrator vibrator = (Vibrator) cordova.getActivity().getSystemService(Context.VIBRATOR_SERVICE);
@@ -178,6 +286,55 @@ public class PlateVinCodeTest extends CordovaPlugin implements PlateVinCallback 
 
   @Override
   public void possibleResultPoints(List<ResultPoint> list) {
+  }
+
+  private void getImage() {
+    if (!PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+      PermissionHelper.requestPermission(this, REQUEST_PERMISSION_GET_IMAGE, Manifest.permission.READ_EXTERNAL_STORAGE);
+    } else if (!PermissionHelper.hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+      PermissionHelper.requestPermission(this, REQUEST_PERMISSION_GET_IMAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+    }  else {
+      Intent intent = new Intent();
+      intent.setType("image/*");
+      intent.setAction(Intent.ACTION_GET_CONTENT);
+      intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+      Intent intentChooser = Intent.createChooser(intent, new String("获取图片"));
+
+      this.cordova.startActivityForResult((CordovaPlugin) this, intentChooser, ACTIVITY_REQUEST_CODE_GET_IMAGE);
+    }
+  }
+  private Handler handler = new Handler() {
+    @Override
+    public void handleMessage(Message msg) {
+      // 关闭ProgressDialog
+      progressDialog.dismiss();
+    }
+  };
+  //识别照片
+  private void processImage(Intent intent) {
+    Uri uri = intent.getData();
+    if (uri == null) {
+      this.callbackContext.error("未正确选择图片");
+      return;
+    }
+
+    String imgFile = FileHelper.getRealPath(uri, this.cordova.getActivity());
+
+    VinApi vinApi = null;
+    try {
+      vinApi = new VinApi(this.cordova.getActivity());
+      vinApi.recognizeImageFile(imgFile);
+      String vin = vinApi.getResult();
+      this.callbackContext.success(vin);
+    } catch (Exception e) {
+      this.callbackContext.error(e.getMessage());
+    } finally {
+      if (vinApi != null) {
+        vinApi.close();
+      }
+      handler.sendEmptyMessage(0);
+    }
   }
 
   // ---- BEGIN EXTERNAL API ----
@@ -193,7 +350,7 @@ public class PlateVinCodeTest extends CordovaPlugin implements PlateVinCallback 
               getStatus(callbackContext);
           }
         } else {
-          callbackContext.error(PlateVinCodeTest.QRScannerError.BACK_CAMERA_UNAVAILABLE);
+          callbackContext.error(plateVinError.BACK_CAMERA_UNAVAILABLE);
         }
       } else if(currentCameraId == Camera.CameraInfo.CAMERA_FACING_FRONT) {
         if (hasFrontCamera()) {
@@ -205,24 +362,24 @@ public class PlateVinCodeTest extends CordovaPlugin implements PlateVinCallback 
               getStatus(callbackContext);
           }
         } else {
-          callbackContext.error(PlateVinCodeTest.QRScannerError.FRONT_CAMERA_UNAVAILABLE);
+          callbackContext.error(plateVinError.FRONT_CAMERA_UNAVAILABLE);
         }
       } else {
-        callbackContext.error(PlateVinCodeTest.QRScannerError.CAMERA_UNAVAILABLE);
+        callbackContext.error(plateVinError.CAMERA_UNAVAILABLE);
       }
     } else {
       prepared = false;
       this.cordova.getActivity().runOnUiThread(new Runnable() {
         @Override
         public void run() {
-//          mBarcodeView.pause();
+          plateVinView.pause();
         }
       });
       if(cameraPreviewing) {
         this.cordova.getActivity().runOnUiThread(new Runnable() {
           @Override
           public void run() {
-//            ((ViewGroup) mBarcodeView.getParent()).removeView(mBarcodeView);
+            ((ViewGroup) plateVinView.getParent()).removeView(plateVinView);
             cameraPreviewing = false;
           }
         });
@@ -311,8 +468,8 @@ public class PlateVinCodeTest extends CordovaPlugin implements PlateVinCallback 
         //设置扫描区域
 //                int currentHeiht = new Double(screenHeight*0.32).intValue();
 //                int marginTop = new Double(screenHeight*(0.3)).intValue();
-//                FrameLayout.LayoutParams cameraPreviewParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, currentHeiht);
-//                cameraPreviewParams.setMargins(0,marginTop,0,0);
+////                FrameLayout.LayoutParams cameraPreviewParams = new FrameLayout.LayoutParams(FrameLayout.LayoutParams.FILL_PARENT, currentHeiht);
+//                cameraPreviewParams.setMargins(0,marginTop,0,marginTop);
         ((ViewGroup) webView.getView().getParent()).addView(plateVinView, cameraPreviewParams);
 
         cameraPreviewing = true;
@@ -359,7 +516,7 @@ public class PlateVinCodeTest extends CordovaPlugin implements PlateVinCallback 
         @Override
         public void run() {
           if (plateVinView != null) {
-            plateVinView.decodeSingle(b);
+            plateVinView.decodeSingle(b,plateApi,vinApi);
           }
         }
       });
@@ -447,16 +604,50 @@ public class PlateVinCodeTest extends CordovaPlugin implements PlateVinCallback 
       return "0";
   }
 
-//    private void scan() {
-//        if (!PermissionHelper.hasPermission(this, Manifest.permission.CAMERA)) {
-//            PermissionHelper.requestPermission(this, REQUEST_PERMISSION_SCAN, Manifest.permission.CAMERA);
-//        } else if (!PermissionHelper.hasPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
-//            PermissionHelper.requestPermission(this, REQUEST_PERMISSION_SCAN, Manifest.permission.READ_EXTERNAL_STORAGE);
-//        } else if (!PermissionHelper.hasPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-//            PermissionHelper.requestPermission(this, REQUEST_PERMISSION_SCAN, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-//        } else {
-//            Intent intent = new Intent(this.cordova.getActivity(),ScanActivity.class);
-//            this.cordova.startActivityForResult((CordovaPlugin) this, intent, ACTIVITY_REQUEST_CODE_SCAN);
-//        }
-//    }
+  private void enableLight(CallbackContext callbackContext) {
+    lightOn = true;
+    if(hasPermission())
+      switchFlash(true, callbackContext);
+    else callbackContext.error(plateVinError.CAMERA_ACCESS_DENIED);
+  }
+
+  private void switchFlash(boolean toggleLight, CallbackContext callbackContext) {
+    try {
+      if (hasFlash()) {
+        doswitchFlash(toggleLight, callbackContext);
+      } else {
+        callbackContext.error(plateVinError.LIGHT_UNAVAILABLE);
+      }
+    } catch (Exception e) {
+      lightOn = false;
+      callbackContext.error(plateVinError.LIGHT_UNAVAILABLE);
+    }
+  }
+
+  private void doswitchFlash(final boolean toggleLight, final CallbackContext callbackContext) throws IOException, CameraAccessException {        //No flash for front facing cameras
+    if (getCurrentCameraId() == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+      callbackContext.error(plateVinError.LIGHT_UNAVAILABLE);
+      return;
+    }
+    if (!prepared) {
+      if (toggleLight)
+        lightOn = true;
+      else
+        lightOn = false;
+      prepare(callbackContext);
+    }
+    cordova.getActivity().runOnUiThread(new Runnable() {
+      @Override
+      public void run() {
+        if (plateVinView != null) {
+          plateVinView.setTorch(toggleLight);
+          if (toggleLight)
+            lightOn = true;
+          else
+            lightOn = false;
+        }
+        getStatus(callbackContext);
+      }
+    });
+  }
 }

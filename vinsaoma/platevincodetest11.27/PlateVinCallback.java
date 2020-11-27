@@ -1,7 +1,6 @@
 package cn.mancando.cordovaplugin.platevincodetest;
 
 import com.google.zxing.ResultPoint;
-import com.journeyapps.barcodescanner.BarcodeResult;
 
 import java.util.List;
 
@@ -12,9 +11,9 @@ public interface PlateVinCallback {
   /**
    * Barcode was successfully scanned.
    *
-   * @param result the result
+   * @param plateVinResult the PlateVinResult
    */
-  void barcodeResult(BarcodeResult result);
+  void plateVinResult(PlateVinResult plateVinResult);
 
   /**
    * ResultPoints are detected. This may be called whether or not the scanning was successful.

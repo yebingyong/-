@@ -5,3 +5,8 @@ cordova.getThreadPool().execute(new Runnable() {
     // 你要执行的代码
   }
 });
+
+
+
+
+https://www.jianshu.com/p/58017c929b90

@@ -14,5 +14,6 @@ ts文件:设置checked是true或者是false即可
 eval往object对象塞元素
 
 
-
-keyup 事件常用
+输入框输入时触发，比如输入时限制输入中文，可用keyup事件
+(keyup)="changeVin($event)
+keyup 

@@ -44,18 +44,9 @@ CREATE TABLE `garage` (
 ) ENGINE=InnoDB AUTO_INCREMENT=59105 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='修理厂';
 
 
-CREATE TABLE `garage_user` (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'ID',
-  `garage_id` int(11) NOT NULL COMMENT '修理厂ID',
-  `username` varchar(20) COLLATE utf8_bin DEFAULT NULL COMMENT '用户名(手机号)',
-  `password_hash` char(60) COLLATE utf8_bin NOT NULL DEFAULT '' COMMENT '登录密码',
-  `status` smallint(6) NOT NULL COMMENT '状态(1000有效，2000停用，9000已删除)',
-  `create_time` datetime NOT NULL COMMENT '添加时间',
-  `update_time` datetime NOT NULL COMMENT '更新时间',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `username` (`username`),
-  KEY `garage_id` (`garage_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6048 DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='修理厂用户';
+ALTER TABLE `user` ADD COLUMN `status`  smallint(6) NOT NULL COMMENT '状态(1000有效，1100冻结，9000已注销)' AFTER `password_hash`;
+
+
 
 CREATE TABLE `store_pic` (
   `id` bigint(20) NOT NULL COMMENT 'ID',

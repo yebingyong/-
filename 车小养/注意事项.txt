@@ -2,3 +2,13 @@
 2、初始化->新建门店store->新建employee->初始化数据
 表关系：garage的id为store的customer_id，可以改为garage_id
 3、user表还要加status字段
+4、项目，配件，价格和车辆分类没关系
+
+
+
+
+
+
+
+
+

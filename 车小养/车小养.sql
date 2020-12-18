@@ -43,10 +43,7 @@ CREATE TABLE `garage` (
   KEY `district_id` (`district_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=59105 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='修理厂';
 
-
 ALTER TABLE `user` ADD COLUMN `status`  smallint(6) NOT NULL COMMENT '状态(1000有效，1100冻结，9000已注销)' AFTER `password_hash`;
-
-
 
 CREATE TABLE `store_pic` (
   `id` bigint(20) NOT NULL COMMENT 'ID',
@@ -197,6 +194,41 @@ CREATE TABLE `hours_price_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='工时单价日志';
 
 INSERT INTO `sequence` (`name`,`nextid`) VALUES ('hours_price_log',0);
+
+#服务表
+ALTER TABLE `service_item` DROP COLUMN `cost_type5`,DROP COLUMN `cost_param5`,DROP COLUMN `cost_type4`,
+DROP COLUMN `cost_param4`,DROP COLUMN `cost_type3`,DROP COLUMN `cost_param3`,DROP COLUMN `cost_type2`,
+DROP COLUMN `cost_param2`,DROP COLUMN `price_type`,DROP COLUMN `working_hours2`,
+DROP COLUMN `unit_price2`,DROP COLUMN `hours_price2`,DROP COLUMN `working_hours3`,
+DROP COLUMN `unit_price3`,DROP COLUMN `hours_price3`,DROP COLUMN `working_hours4`,
+DROP COLUMN `unit_price4`,DROP COLUMN `hours_price4`,DROP COLUMN `working_hours5`,
+DROP COLUMN `unit_price5`,DROP COLUMN `hours_price5`,
+CHANGE COLUMN `cost_type1` `cost_type`  tinyint(4) NOT NULL DEFAULT 1 COMMENT '成本类型(1固定成本, 2比例成本, 3单位成本)' AFTER `category_id`,
+CHANGE COLUMN `cost_param1` `cost_param`  decimal(10,2) NOT NULL DEFAULT 0.00 COMMENT '成本参数' AFTER `cost_type`,
+CHANGE COLUMN `working_hours1` `working_hours`  decimal(8,2) NOT NULL DEFAULT 0.00 COMMENT '工时' AFTER `cost_param`,
+CHANGE COLUMN `hours_price1` `hours_price`  decimal(8,2) NOT NULL COMMENT '工时单价(元)' AFTER `working_hours`,
+CHANGE COLUMN `unit_price1` `unit_price`  decimal(11,2) NULL DEFAULT 0.00 COMMENT '单价' AFTER `hours_price`,
+ADD COLUMN `hours_param`  decimal(8,2) NOT NULL COMMENT '工时系数' AFTER `working_hours`,
+ADD COLUMN `basic_price`  decimal(11,2) NULL DEFAULT 0.00 COMMENT '服务基础价' AFTER `unit_price`,
+ADD COLUMN `sale_price`  decimal(11,2) NULL DEFAULT 0.00 COMMENT '销售总价' AFTER `basic_price`;
+#商品分类表
+ALTER TABLE `category`
+MODIFY COLUMN `level`  tinyint(4) NOT NULL COMMENT '品类级别(0：顶级分类，1：二级分类，2：三级分类）' AFTER `parent_id`,
+ADD COLUMN `number`  varchar(30) NOT NULL COMMENT '编号' AFTER `name`,
+ADD COLUMN `working_hours`  decimal(10,2) NOT NULL DEFAULT 0 COMMENT '工时' AFTER `level`,
+ADD COLUMN `hours_param`  decimal(10,2) NOT NULL DEFAULT 0 COMMENT '工时系数' AFTER `working_hours`;
+#商品表
+ALTER TABLE `product`
+DROP COLUMN `price_type`,
+DROP COLUMN `sale_price2`,
+DROP COLUMN `sale_price3`,
+DROP COLUMN `sale_price4`,
+DROP COLUMN `sale_price5`,
+CHANGE COLUMN `sale_price1` `sale_price`  decimal(10,2) NULL DEFAULT 0.00 COMMENT '销售价(元)' AFTER `markup_type`,
+ADD COLUMN `working_hours`  decimal(8,2) NOT NULL COMMENT '工时' AFTER `sale_price`,
+ADD COLUMN `hours_price`  decimal(8,2) NOT NULL COMMENT '工时单价' AFTER `working_hours`,
+ADD COLUMN `hours_param`  decimal(8,2) NOT NULL COMMENT '工时系数' AFTER `hours_price`,
+ADD COLUMN `unit_price`  decimal(10,2) NOT NULL COMMENT '工时单价' AFTER `hours_param`;
 
 
 

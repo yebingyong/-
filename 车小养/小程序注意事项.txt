@@ -1,2 +1,2 @@
-小程序api接口和公众号不一样
+﻿小程序api接口和公众号不一样 
 现在项目的getOauthToken地址，改为https://api.weixin.qq.com/sns/jscode2session?appid=<AppId>&secret=<AppSecret>&js_code=<code>&grant_type=authorization_code

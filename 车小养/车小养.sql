@@ -43,6 +43,12 @@ CREATE TABLE `garage` (
   KEY `district_id` (`district_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=59105 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin COMMENT='修理厂';
 
+CREATE TABLE `garage_number_sequence` (
+  `id` char(3) COLLATE utf8_bin NOT NULL COMMENT '键',
+  `value` int(11) NOT NULL COMMENT '值',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='修理厂编号自增序列';
+
 ALTER TABLE `user` ADD COLUMN `status`  smallint(6) NOT NULL COMMENT '状态(1000有效，1100冻结，9000已注销)' AFTER `password_hash`;
 
 CREATE TABLE `store_pic` (
@@ -115,24 +121,6 @@ CREATE TABLE `shopping_mall_product` (
 
 INSERT INTO `sequence` (`name`,`nextid`) VALUES ('shopping_mall_product',0);
 
-CREATE TABLE `shopping_mall_product` (
-  `id` bigint(20) NOT NULL,
-  `tenant_id` int(11) NOT NULL COMMENT '租户ID',
-  `store_id` bigint(20) NOT NULL,
-  `name` varchar(30) CHARACTER SET utf8 NOT NULL COMMENT '名称',
-  `shopping_mall_product_category_id` bigint(20) NOT NULL,
-  `sale_price` decimal(10,2) NOT NULL DEFAULT '0.00' COMMENT '销售价(元)',
-  `description` varchar(255) COLLATE utf8_bin DEFAULT '' COMMENT '描述',
-  `create_time` datetime NOT NULL COMMENT '添加时间',
-  `update_time` datetime NOT NULL COMMENT '更新时间',
-  PRIMARY KEY (`id`),
-  KEY `tenant_id` (`tenant_id`) USING BTREE,
-  KEY `store_id` (`store_id`) USING BTREE,
-  KEY `name` (`name`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='商城商品';
-
-INSERT INTO `sequence` (`name`,`nextid`) VALUES ('shopping_mall_product',0);
-
 CREATE TABLE `shopping_mall_product_item` (
   `id` bigint(20) NOT NULL,
   `tenant_id` int(11) NOT NULL COMMENT '租户ID',
@@ -195,6 +183,10 @@ CREATE TABLE `hours_price_log` (
 
 INSERT INTO `sequence` (`name`,`nextid`) VALUES ('hours_price_log',0);
 
+
+
+
+#下个版本
 #服务表
 ALTER TABLE `service_item` DROP COLUMN `cost_type5`,DROP COLUMN `cost_param5`,DROP COLUMN `cost_type4`,
 DROP COLUMN `cost_param4`,DROP COLUMN `cost_type3`,DROP COLUMN `cost_param3`,DROP COLUMN `cost_type2`,

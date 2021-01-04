@@ -1,0 +1,7 @@
+1、repair_order_product_item表
+ discount：优惠价或者折扣，只有存在会员卡或者会员卡折扣时，才有意义
+bargain_discount：成交折扣（元），实际成交价/原价,例如计次卡项目，则为0
+
+2、repair_order表
+discount_amount：优惠金额，在结算时的手动输入优惠
+card_discount_amount：会员卡折扣金额（卡种折扣：原价-（会员价或者折扣））

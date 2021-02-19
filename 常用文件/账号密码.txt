@@ -34,6 +34,8 @@ http://test.mancando.cn/kxb/
 微信开放平台3426567484@qq.com  密码AA654123
 
 车小养小程序cxy_chezhu@126.com         cxyas.com
+小程序appid wx59e9f9de459fee99
+小程序密钥appSecret 17d608b70a75537edd0e9038029542fb
 
 
 

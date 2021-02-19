@@ -1,0 +1,8 @@
+测试网新建项目命令
+1、cd /home/mancando;
+2、svn checkout "svn://svn.mancando.cn/prj_Mancando/01 Developing/1.1 Code/1.1.1 SRC/chexy";
+3、cd /home/mancando/html;
+4、软链接：ln -s ../chexy/admin/web/ chexy-admin
+5、建好runtime，assets文件夹再修改文件夹权限 chmod 777 admin/runtime/ admin/web/assets/
+6、数据库：cd到相应的文件夹位置，再直接进入 mysql 直接source xx.sql即可
+7、新建数据库用户，修改、刷新权限

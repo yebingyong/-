@@ -37,6 +37,8 @@ http://test.mancando.cn/kxb/
 小程序appid wx59e9f9de459fee99
 小程序密钥appSecret 17d608b70a75537edd0e9038029542fb
 
+公司测试网47.112.123.64        root   T2019Rup@wMQp872%Nm
+
 
 
 

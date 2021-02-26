@@ -19,3 +19,7 @@ cd /home/dev/htdocs/mancando/
 
 cd garage4.0.0/console
 php index.php picc/picc-order/handle
+
+3、添加本地后台任务
+/home/dev/devops/lamp7-dev/conf/supervisord.conf
+在这个文件加任务

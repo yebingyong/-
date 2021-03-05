@@ -1,1 +1,2 @@
 查看进程 ps -aux 
+查看php安装扩展 php -m

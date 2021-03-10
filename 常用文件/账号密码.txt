@@ -23,7 +23,7 @@ http://test.mancando.cn/kxb/
 测试服务商：紫云店
 快修宝18859256184
 
-快修宝正式包：密钥库口令：Mancando@2017$KuM76
+快修宝正式包：密钥库口令：Mancando@2017$KuM76  
 密钥口令：g.mancando.cn@2017$MLyt43
  
 
@@ -38,6 +38,8 @@ http://test.mancando.cn/kxb/
 小程序密钥appSecret 17d608b70a75537edd0e9038029542fb
 
 公司测试网47.112.123.64        root   T2019Rup@wMQp872%Nm
+通商云账号  对账平台：https://tlt.allinpay.com 账号：20000000027725601 密码：cxy@2021mn
+收银宝  https://vsp.allinpay.com/main  登录账号13625101508  登录密码chexiaoyang2020  支付密码cxyas.com2020
 
 
 
